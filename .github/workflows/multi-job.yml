@@ -1,0 +1,62 @@
+name: Multi-Job Workflows
+on: [push]
+jobs:
+  ubuntu:
+    name: Job1 Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5.5.0
+        with:
+          go-version: 1.20
+      - name: Build Go binary
+        run: go build -o main main.go
+      - name: Run binary
+        run: ./main
+  windows:
+    name: Job2 Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5.5.0
+        with:
+          go-version: 1.20
+      - name: Build Go binary
+        run: go build -o main.exe main.go
+      - name: Run binary
+        run: .\main.exe
+  macos:
+    name: Job3 MacOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5.5.0
+        with:
+          go-version: 1.20
+      - name: Build Go binary
+        run: go build -o main main.go
+      - name: Run binary
+        run: ./main
+  cross-compile:
+    name: Job4 Dependency
+    runs-on: ubuntu-latest
+    needs: [ubuntu,windows,macos]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5.5.0
+        with:
+          go-version: 1.20
+      - name: Cross-compile all platforms
+        run: |
+          echo "Cross-compiling for all platforms..."
+          GOOS=linux GOARCH=amd64 go build -o main-linux-amd64 main.go
+          GOOS=windows GOARCH=amd64 go build -o main-windows-amd64.exe main.go
+          GOOS=darwin GOARCH=amd64 go build -o main-darwin-amd64 main.go
